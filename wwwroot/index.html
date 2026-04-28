@@ -1,0 +1,2152 @@
+<!doctype html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CyberFork — Замовлення їжі</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0c0b09;
+        --surface: #141310;
+        --surface2: #1c1a16;
+        --surface3: #242118;
+        --border: rgba(255, 255, 255, 0.07);
+        --border-light: rgba(255, 255, 255, 0.04);
+        --accent: #e8a44a;
+        --accent-dim: rgba(232, 164, 74, 0.12);
+        --accent-hover: #f0b86a;
+        --text: #f0ede6;
+        --text-secondary: #9a9488;
+        --text-muted: #5c574f;
+        --success: #5cb87a;
+        --danger: #d96b6b;
+        --warning: #d4a84b;
+        --cyan: #7abfbf;
+        --radius-sm: 6px;
+        --radius: 10px;
+        --radius-lg: 16px;
+        --font-display: "DM Serif Display", serif;
+        --font-body: "DM Sans", sans-serif;
+        --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: var(--font-body);
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+        overflow-x: hidden;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      #toast {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        padding: 12px 18px;
+        border-radius: var(--radius);
+        font-size: 1rem;
+        font-weight: 500;
+        z-index: 9999;
+        opacity: 0;
+        transform: translateY(12px);
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        max-width: 340px;
+        pointer-events: none;
+        backdrop-filter: blur(12px);
+      }
+      #toast.show {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+      }
+      #toast.ok {
+        background: rgba(92, 184, 122, 0.12);
+        border: 1px solid rgba(92, 184, 122, 0.3);
+        color: var(--success);
+      }
+      #toast.err {
+        background: rgba(217, 107, 107, 0.12);
+        border: 1px solid rgba(217, 107, 107, 0.3);
+        color: var(--danger);
+      }
+      #toast.info {
+        background: rgba(122, 191, 191, 0.12);
+        border: 1px solid rgba(122, 191, 191, 0.3);
+        color: var(--cyan);
+      }
+
+      nav {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0 40px;
+        height: 60px;
+        background: rgba(12, 11, 9, 0.92);
+        backdrop-filter: blur(24px);
+        border-bottom: 1px solid var(--border);
+      }
+      .nav-logo {
+        font-family: var(--font-display);
+        font-size: 2rem;
+        font-style: italic;
+        color: var(--accent);
+        text-decoration: none;
+        flex-shrink: 0;
+        margin-right: 8px;
+        letter-spacing: -0.3px;
+      }
+      .nav-logo span {
+        color: var(--text);
+        font-style: normal;
+      }
+      .nav-links {
+        display: flex;
+        gap: 2px;
+        flex: 1;
+      }
+      .nav-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 7px 14px;
+        border-radius: var(--radius-sm);
+        font-family: var(--font-body);
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+        transition: all 0.18s;
+      }
+      .nav-btn:hover {
+        color: var(--text);
+        background: rgba(255, 255, 255, 0.04);
+      }
+      .nav-btn.active {
+        color: var(--accent);
+        background: var(--accent-dim);
+      }
+      .nav-right {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .cart-btn {
+        position: relative;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        cursor: pointer;
+        padding: 10px 20px;
+        border-radius: var(--radius-sm);
+        font-family: var(--font-body);
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--text);
+        transition: all 0.18s;
+      }
+      .cart-btn:hover {
+        border-color: rgba(232, 164, 74, 0.4);
+        color: var(--accent);
+      }
+      .cart-badge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background: var(--accent);
+        color: var(--bg);
+        border-radius: 50%;
+        width: 18px;
+        height: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        font-weight: 700;
+      }
+      .user-chip {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 5px 10px;
+        border-radius: var(--radius-sm);
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        font-size: 1rem;
+        color: var(--text);
+      }
+      .role-badge {
+        background: var(--accent-dim);
+        color: var(--accent);
+        border: 1px solid rgba(232, 164, 74, 0.25);
+        border-radius: 4px;
+        padding: 1px 6px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.6px;
+        text-transform: uppercase;
+      }
+      .role-badge.admin {
+        background: rgba(122, 191, 191, 0.1);
+        color: var(--cyan);
+        border-color: rgba(122, 191, 191, 0.25);
+      }
+
+      .page {
+        display: none;
+      }
+      .page.active {
+        display: block;
+        animation: fadeUp 0.28s ease both;
+      }
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .hero {
+        position: relative;
+        padding: 96px 40px 80px;
+        text-align: center;
+        overflow: hidden;
+      }
+      .hero-bg {
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(
+            ellipse 80% 60% at 50% -10%,
+            rgba(232, 164, 74, 0.1) 0%,
+            transparent 70%
+          ),
+          radial-gradient(
+            ellipse 40% 40% at 80% 80%,
+            rgba(122, 191, 191, 0.04) 0%,
+            transparent 60%
+          );
+        pointer-events: none;
+      }
+      .hero-eyebrow {
+        display: inline-block;
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 2.5px;
+        text-transform: uppercase;
+        color: var(--accent);
+        background: var(--accent-dim);
+        border: 1px solid rgba(232, 164, 74, 0.2);
+        padding: 5px 14px;
+        border-radius: 20px;
+        margin-bottom: 28px;
+      }
+      .hero h1 {
+        font-family: var(--font-display);
+        font-size: clamp(3.2rem, 9vw, 6.5rem);
+        font-weight: 400;
+        line-height: 0.95;
+        letter-spacing: -2px;
+        color: var(--text);
+        margin-bottom: 6px;
+      }
+      .hero h1 em {
+        font-style: italic;
+        color: var(--accent);
+      }
+      .hero-sub {
+        font-size: 1.5rem;
+        color: var(--text-secondary);
+        font-weight: 300;
+        max-width: 460px;
+        margin: 24px auto 36px;
+        line-height: 1.7;
+      }
+      .hero-cta {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      .hero-stats {
+        display: flex;
+        justify-content: center;
+        margin-top: 64px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        background: var(--surface);
+        overflow: hidden;
+        max-width: 520px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .stat {
+        flex: 1;
+        text-align: center;
+        padding: 20px 16px;
+        border-right: 1px solid var(--border);
+      }
+      .stat:last-child {
+        border-right: none;
+      }
+      .stat-val {
+        font-family: var(--font-display);
+        font-size: 2.4rem;
+        color: var(--accent);
+        line-height: 1;
+        margin-bottom: 4px;
+      }
+      .stat-lab {
+        font-size: 1rem;
+        color: var(--text-muted);
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        font-weight: 500;
+      }
+
+      .features-strip {
+        display: flex;
+        gap: 1px;
+        background: var(--border);
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+      }
+      .feature-item {
+        flex: 1;
+        background: var(--surface);
+        padding: 28px 32px;
+        transition: background 0.2s;
+      }
+      .feature-item:hover {
+        background: var(--surface2);
+      }
+      .feature-icon {
+        width: 32px;
+        height: 32px;
+        margin-bottom: 14px;
+        color: var(--accent);
+        opacity: 0.7;
+      }
+      .feature-title {
+        font-family: var(--font-display);
+        font-size: 1.5rem;
+        color: var(--text);
+        margin-bottom: 6px;
+        font-style: italic;
+      }
+      .feature-desc {
+        font-size: 1.2rem;
+        color: var(--text-secondary);
+        line-height: 1.6;
+        font-weight: 300;
+      }
+
+      .info-block {
+        margin: 40px;
+        padding: 24px 28px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-left: 2px solid var(--accent);
+        border-radius: var(--radius);
+        font-size: 1.2rem;
+        color: var(--text-secondary);
+        line-height: 1.8;
+      }
+      .info-block strong {
+        color: var(--text);
+        font-weight: 500;
+      }
+
+      .section {
+        padding: 32px 40px;
+      }
+      .section-header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+      }
+      .section-title {
+        font-family: var(--font-display);
+        font-size: 2rem;
+        font-weight: 400;
+        font-style: italic;
+        color: var(--text);
+        letter-spacing: -0.5px;
+      }
+
+      .filters-bar {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+      }
+      .input,
+      .select {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        color: var(--text);
+        padding: 9px 13px;
+        border-radius: var(--radius-sm);
+        font-family: var(--font-body);
+        font-size: 1rem;
+        transition: border-color 0.15s;
+        outline: none;
+      }
+      .input:focus,
+      .select:focus {
+        border-color: rgba(232, 164, 74, 0.5);
+      }
+      .input::placeholder {
+        color: var(--text-muted);
+      }
+      .search-input {
+        flex: 1;
+        min-width: 200px;
+      }
+
+      .cat-tabs {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-bottom: 24px;
+      }
+      .cat-tab {
+        padding: 6px 14px;
+        border-radius: 20px;
+        cursor: pointer;
+        border: 1px solid var(--border);
+        background: transparent;
+        color: var(--text-secondary);
+        font-size: 1rem;
+        font-weight: 500;
+        font-family: var(--font-body);
+        transition: all 0.15s;
+      }
+      .cat-tab:hover {
+        border-color: rgba(232, 164, 74, 0.4);
+        color: var(--text);
+      }
+      .cat-tab.active {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: var(--bg);
+        font-weight: 600;
+      }
+
+      .cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+        gap: 12px;
+      }
+      .dish-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        transition:
+          border-color 0.2s,
+          transform 0.2s,
+          box-shadow 0.2s;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+      }
+      .dish-card:hover {
+        border-color: rgba(232, 164, 74, 0.35);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      }
+      .dish-img {
+        height: 120px;
+        background: var(--surface2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        border-bottom: 1px solid var(--border-light);
+      }
+      .dish-body {
+        padding: 14px 14px 10px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+      .dish-name {
+        font-weight: 500;
+        font-size: 1.2rem;
+        color: var(--text);
+        line-height: 1.3;
+      }
+      .dish-desc {
+        font-size: 1rem;
+        color: var(--text-secondary);
+        line-height: 1.5;
+        flex: 1;
+        font-weight: 300;
+      }
+      .dish-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 14px;
+        border-top: 1px solid var(--border-light);
+      }
+      .dish-price {
+        font-family: var(--font-display);
+        font-size: 1.5rem;
+        color: var(--accent);
+      }
+      .add-btn {
+        background: var(--accent-dim);
+        color: var(--accent);
+        border: 1px solid rgba(232, 164, 74, 0.25);
+        cursor: pointer;
+        padding: 5px 13px;
+        border-radius: var(--radius-sm);
+        font-family: var(--font-body);
+        font-size: 1rem;
+        font-weight: 500;
+        transition: all 0.15s;
+      }
+      .add-btn:hover {
+        background: var(--accent);
+        color: var(--bg);
+        border-color: var(--accent);
+      }
+      .unavail-badge {
+        display: inline-block;
+        background: rgba(217, 107, 107, 0.1);
+        color: var(--danger);
+        border: 1px solid rgba(217, 107, 107, 0.2);
+        border-radius: 4px;
+        padding: 2px 7px;
+        font-size: 0.9rem;
+        font-weight: 500;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 10px 20px;
+        border-radius: var(--radius-sm);
+        border: none;
+        cursor: pointer;
+        font-family: var(--font-body);
+        font-size: 1rem;
+        font-weight: 500;
+        transition: all 0.18s;
+        text-decoration: none;
+        white-space: nowrap;
+      }
+      .btn-primary {
+        background: var(--accent);
+        color: var(--bg);
+      }
+      .btn-primary:hover {
+        background: var(--accent-hover);
+      }
+      .btn-ghost {
+        background: var(--surface2);
+        color: var(--text);
+        border: 1px solid var(--border);
+      }
+      .btn-ghost:hover {
+        border-color: rgba(232, 164, 74, 0.4);
+        color: var(--accent);
+      }
+      .btn-danger {
+        background: rgba(217, 107, 107, 0.1);
+        color: var(--danger);
+        border: 1px solid rgba(217, 107, 107, 0.2);
+      }
+      .btn-danger:hover {
+        background: rgba(217, 107, 107, 0.2);
+      }
+      .btn-sm {
+        padding: 5px 10px;
+        font-size: 1rem;
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      thead tr {
+        background: var(--surface2);
+      }
+      th {
+        padding: 11px 16px;
+        text-align: left;
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        color: var(--text-muted);
+      }
+      td {
+        padding: 12px 16px;
+        border-top: 1px solid var(--border-light);
+        font-size: 1rem;
+        vertical-align: middle;
+      }
+      tr:hover td {
+        background: rgba(232, 164, 74, 0.025);
+      }
+      .status-pill {
+        display: inline-block;
+        padding: 3px 9px;
+        border-radius: 20px;
+        font-size: 0.72rem;
+        font-weight: 500;
+      }
+      .s1 {
+        background: rgba(122, 191, 191, 0.1);
+        color: var(--cyan);
+      }
+      .s2 {
+        background: rgba(212, 168, 75, 0.1);
+        color: var(--warning);
+      }
+      .s3 {
+        background: rgba(168, 85, 247, 0.1);
+        color: #a78bfa;
+      }
+      .s4 {
+        background: rgba(92, 184, 122, 0.1);
+        color: var(--success);
+      }
+      .s5 {
+        background: rgba(217, 107, 107, 0.1);
+        color: var(--danger);
+      }
+
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 500;
+        background: rgba(0, 0, 0, 0.75);
+        backdrop-filter: blur(8px);
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+      }
+      .modal-overlay.open {
+        display: flex;
+      }
+      .modal {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 32px;
+        width: 100%;
+        max-width: 520px;
+        max-height: 90vh;
+        overflow-y: auto;
+        animation: popIn 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+        box-shadow: var(--shadow-lg);
+      }
+      @keyframes popIn {
+        from {
+          transform: scale(0.93);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+      .modal h3 {
+        font-family: var(--font-display);
+        font-size: 1.7rem;
+        font-style: italic;
+        margin-bottom: 22px;
+        color: var(--text);
+        font-weight: 400;
+      }
+      .form-group {
+        margin-bottom: 16px;
+      }
+      .form-label {
+        display: block;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        margin-bottom: 6px;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+      }
+      .form-input {
+        width: 100%;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        color: var(--text);
+        padding: 10px 13px;
+        border-radius: var(--radius-sm);
+        font-family: var(--font-body);
+        font-size: 1rem;
+        outline: none;
+        transition: border-color 0.15s;
+      }
+      .form-input:focus {
+        border-color: rgba(232, 164, 74, 0.5);
+      }
+      .modal-actions {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+        margin-top: 22px;
+      }
+
+      .cart-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 400;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+      }
+      .cart-overlay.open {
+        display: block;
+      }
+      .cart-panel {
+        position: fixed;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        width: min(400px, 100vw);
+        background: var(--surface);
+        border-left: 1px solid var(--border);
+        z-index: 401;
+        transform: translateX(100%);
+        transition: transform 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        display: flex;
+        flex-direction: column;
+      }
+      .cart-panel.open {
+        transform: translateX(0);
+      }
+      .cart-head {
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .cart-title {
+        font-family: var(--font-display);
+        font-size: 1.5rem;
+        font-style: italic;
+        font-weight: 400;
+      }
+      .close-btn {
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        font-size: 2rem;
+        line-height: 1;
+        padding: 4px;
+        transition: color 0.15s;
+      }
+      .close-btn:hover {
+        color: var(--text);
+      }
+      .cart-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 16px 24px;
+      }
+      .cart-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--border-light);
+      }
+      .cart-item-emoji {
+        font-size: 2rem;
+        flex-shrink: 0;
+      }
+      .cart-item-info {
+        flex: 1;
+        min-width: 0;
+      }
+      .cart-item-name {
+        font-weight: 500;
+        font-size: 1rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .cart-item-price {
+        font-size: 0.78rem;
+        color: var(--text-secondary);
+        margin-top: 2px;
+      }
+      .qty-ctrl {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .qty-btn {
+        width: 26px;
+        height: 26px;
+        border-radius: 5px;
+        border: 1px solid var(--border);
+        background: var(--surface2);
+        color: var(--text);
+        cursor: pointer;
+        font-size: 1.4rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.12s;
+      }
+      .qty-btn:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .qty-num {
+        min-width: 22px;
+        text-align: center;
+        font-weight: 600;
+        font-size: 1rem;
+      }
+      .cart-foot {
+        padding: 20px 24px;
+        border-top: 1px solid var(--border);
+      }
+      .cart-total {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 14px;
+      }
+      .cart-total-label {
+        color: var(--text-secondary);
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        font-weight: 600;
+      }
+      .cart-total-val {
+        font-family: var(--font-display);
+        font-size: 2rem;
+        color: var(--accent);
+      }
+      .cart-empty {
+        text-align: center;
+        color: var(--text-muted);
+        padding: 48px 0;
+        font-size: 1rem;
+        line-height: 2.2;
+      }
+
+      .auth-wrap {
+        max-width: 420px;
+        margin: 64px auto;
+        padding: 0 16px;
+      }
+      .auth-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 40px;
+      }
+      .auth-title {
+        font-family: var(--font-display);
+        font-size: 2rem;
+        font-weight: 400;
+        font-style: italic;
+        text-align: center;
+        margin-bottom: 6px;
+      }
+      .auth-sub {
+        text-align: center;
+        color: var(--text-secondary);
+        font-size: 1rem;
+        margin-bottom: 28px;
+        font-weight: 300;
+      }
+      .auth-switch {
+        text-align: center;
+        margin-top: 16px;
+        font-size: 1rem;
+        color: var(--text-muted);
+      }
+      .auth-switch a {
+        color: var(--accent);
+        cursor: pointer;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 10px;
+        margin-bottom: 28px;
+      }
+      .stat-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 18px 20px;
+        transition: border-color 0.15s;
+      }
+      .stat-card:hover {
+        border-color: rgba(232, 164, 74, 0.2);
+      }
+      .stat-card-val {
+        font-family: var(--font-display);
+        font-size: 2rem;
+        color: var(--accent);
+      }
+      .stat-card-lab {
+        font-size: 1rem;
+        color: var(--text-muted);
+        letter-spacing: 0.6px;
+        text-transform: uppercase;
+        margin-top: 3px;
+        font-weight: 500;
+      }
+
+      /* ─── Scrollbar ─── */
+      ::-webkit-scrollbar {
+        width: 5px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--surface3);
+        border-radius: 3px;
+      }
+
+      @media (max-width: 640px) {
+        nav {
+          padding: 0 16px;
+        }
+        .section {
+          padding: 20px 16px;
+        }
+        .hero {
+          padding: 56px 16px 48px;
+        }
+        .info-block {
+          margin: 20px 16px;
+        }
+        .features-strip {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="toast"></div>
+
+    <nav>
+      <a class="nav-logo" href="#" onclick="showPage('home')"
+        >Cyber<span>Fork</span></a
+      >
+      <div class="nav-links">
+        <button class="nav-btn active" onclick="showPage('home')">
+          Головна
+        </button>
+        <button class="nav-btn" onclick="showPage('menu')">Меню</button>
+        <button class="nav-btn" id="nav-orders" onclick="showPage('orders')">
+          Мої замовлення
+        </button>
+        <button
+          class="nav-btn admin-only"
+          style="display: none"
+          onclick="showPage('admin')"
+        >
+          Адмін-панель
+        </button>
+      </div>
+      <div class="nav-right">
+        <button class="cart-btn" onclick="openCart()" id="cart-btn">
+          Кошик
+          <span class="cart-badge" id="cart-badge" style="display: none"
+            >0</span
+          >
+        </button>
+        <div id="user-area"></div>
+      </div>
+    </nav>
+
+    <div class="cart-overlay" id="cart-overlay" onclick="closeCart()"></div>
+    <div class="cart-panel" id="cart-panel">
+      <div class="cart-head">
+        <div class="cart-title">Кошик</div>
+        <button class="close-btn" onclick="closeCart()">×</button>
+      </div>
+      <div class="cart-body" id="cart-body"></div>
+      <div class="cart-foot">
+        <div class="cart-total">
+          <span class="cart-total-label">Разом</span>
+          <span class="cart-total-val" id="cart-total">0 ₴</span>
+        </div>
+        <button
+          class="btn btn-primary"
+          style="width: 100%; justify-content: center"
+          onclick="openCheckout()"
+        >
+          Оформити замовлення
+        </button>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="checkout-modal">
+      <div class="modal">
+        <h3>Оформлення замовлення</h3>
+        <div id="checkout-user-section"></div>
+        <div class="form-group">
+          <label class="form-label">Коментар</label>
+          <input
+            id="co-comment"
+            class="form-input"
+            placeholder="Наприклад: без цибулі, доставити до 19:00"
+          />
+        </div>
+        <div
+          style="
+            background: var(--surface2);
+            border-radius: 8px;
+            padding: 14px;
+            margin-bottom: 16px;
+            font-size: 0.84rem;
+          "
+        >
+          <div
+            style="
+              font-size: 0.68rem;
+              text-transform: uppercase;
+              letter-spacing: 0.8px;
+              color: var(--text-muted);
+              margin-bottom: 10px;
+              font-weight: 600;
+            "
+          >
+            Склад замовлення
+          </div>
+          <div id="checkout-items"></div>
+        </div>
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 4px;
+          "
+        >
+          <span
+            style="
+              font-size: 0.72rem;
+              color: var(--text-muted);
+              text-transform: uppercase;
+              letter-spacing: 0.8px;
+              font-weight: 600;
+            "
+            >До оплати</span
+          >
+          <span
+            id="checkout-total"
+            style="
+              font-family: var(--font-display);
+              font-size: 1.4rem;
+              color: var(--accent);
+            "
+          ></span>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="closeModal('checkout-modal')">
+            Скасувати
+          </button>
+          <button class="btn btn-primary" onclick="submitOrder()">
+            Підтвердити
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="dish-modal">
+      <div class="modal">
+        <h3 id="dish-modal-title">Страва</h3>
+        <input type="hidden" id="dm-id" />
+        <div class="form-group">
+          <label class="form-label">Назва *</label
+          ><input id="dm-name" class="form-input" placeholder="Назва страви" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Опис</label
+          ><input
+            id="dm-desc"
+            class="form-input"
+            placeholder="Склад, особливості"
+          />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ціна (грн) *</label
+          ><input
+            id="dm-price"
+            type="number"
+            class="form-input"
+            placeholder="0"
+          />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Категорія *</label
+          ><select id="dm-cat" class="form-input"></select>
+        </div>
+        <div class="form-group">
+          <label
+            style="
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              font-size: 0.83rem;
+              color: var(--text-secondary);
+              cursor: pointer;
+            "
+          >
+            <input id="dm-avail" type="checkbox" checked /> Доступна для
+            замовлення
+          </label>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="closeModal('dish-modal')">
+            Скасувати
+          </button>
+          <button class="btn btn-primary" onclick="saveDish()">Зберегти</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="log-modal">
+      <div class="modal" style="max-width: 600px">
+        <h3>Журнал змін</h3>
+        <div id="log-content"></div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="closeModal('log-modal')">
+            Закрити
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="page active" id="page-home">
+      <div class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-eyebrow">Ресторан із доставкою</div>
+        <h1>Cyber<em>Fork</em></h1>
+        <p class="hero-sub">
+          Замовляйте улюблені страви онлайн — швидко, смачно, без зайвих кроків.
+        </p>
+        <div class="hero-cta">
+          <button
+            class="btn btn-primary"
+            onclick="showPage('menu')"
+            style="font-size: 0.95rem; padding: 12px 26px"
+          >
+            Переглянути меню
+          </button>
+          <button
+            class="btn btn-ghost"
+            onclick="showPage('menu')"
+            style="font-size: 0.95rem; padding: 12px 26px"
+          >
+            Зробити замовлення
+          </button>
+        </div>
+        <div class="hero-stats">
+          <div class="stat">
+            <div class="stat-val" id="home-dishes">—</div>
+            <div class="stat-lab">Страв у меню</div>
+          </div>
+          <div class="stat">
+            <div class="stat-val" id="home-cats">—</div>
+            <div class="stat-lab">Категорій</div>
+          </div>
+          <div class="stat">
+            <div class="stat-val" style="font-style: italic">15хв</div>
+            <div class="stat-lab">Доставка</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-menu">
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">Меню ресторану</div>
+        </div>
+        <div class="filters-bar">
+          <input
+            id="menu-search"
+            class="input search-input"
+            placeholder="Пошук за назвою або складом..."
+            oninput="filterDishes()"
+          />
+          <input
+            id="menu-min"
+            type="number"
+            class="input"
+            style="width: 100px"
+            placeholder="Від ₴"
+            oninput="filterDishes()"
+          />
+          <input
+            id="menu-max"
+            type="number"
+            class="input"
+            style="width: 100px"
+            placeholder="До ₴"
+            oninput="filterDishes()"
+          />
+          <label
+            style="
+              display: flex;
+              align-items: center;
+              gap: 6px;
+              font-size: 0.82rem;
+              color: var(--text-secondary);
+            "
+          >
+            <input
+              type="checkbox"
+              id="menu-avail"
+              onchange="filterDishes()"
+              checked
+            />
+            Лише доступні
+          </label>
+        </div>
+        <div class="cat-tabs" id="cat-tabs"></div>
+        <div class="cards-grid" id="dishes-grid"></div>
+      </div>
+    </div>
+
+    <div class="page" id="page-orders">
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">Мої замовлення</div>
+        </div>
+        <div id="orders-content"></div>
+      </div>
+    </div>
+
+    <div class="page" id="page-auth">
+      <div class="auth-wrap">
+        <div id="form-login">
+          <div class="auth-card">
+            <div class="auth-title">Вхід</div>
+            <div class="auth-sub">Введіть свої дані для входу</div>
+            <div class="form-group">
+              <label class="form-label">Електронна пошта</label
+              ><input
+                id="l-email"
+                class="form-input"
+                type="email"
+                placeholder="email@example.com"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Пароль</label
+              ><input
+                id="l-pass"
+                class="form-input"
+                type="password"
+                placeholder="••••••••"
+                onkeydown="if (event.key === 'Enter') doLogin();"
+              />
+            </div>
+            <button
+              class="btn btn-primary"
+              style="width: 100%; justify-content: center; padding: 12px"
+              onclick="doLogin()"
+            >
+              Увійти
+            </button>
+            <div class="auth-switch">
+              Немає акаунту? <a onclick="toggleAuth(false)">Зареєструватися</a>
+            </div>
+          </div>
+        </div>
+        <div id="form-register" style="display: none">
+          <div class="auth-card">
+            <div class="auth-title">Реєстрація</div>
+            <div class="auth-sub">
+              Створіть акаунт для відстеження замовлень
+            </div>
+            <div class="form-group">
+              <label class="form-label">Ім'я та прізвище</label
+              ><input
+                id="r-name"
+                class="form-input"
+                placeholder="Олена Коваль"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Електронна пошта</label
+              ><input
+                id="r-email"
+                class="form-input"
+                type="email"
+                placeholder="email@example.com"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Пароль (мін. 6 символів)</label
+              ><input
+                id="r-pass"
+                class="form-input"
+                type="password"
+                placeholder="••••••••"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Телефон</label
+              ><input
+                id="r-phone"
+                class="form-input"
+                placeholder="+380XXXXXXXXX"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Адреса доставки</label
+              ><input
+                id="r-addr"
+                class="form-input"
+                placeholder="вул. Хрещатик, 1, Київ"
+              />
+            </div>
+            <button
+              class="btn btn-primary"
+              style="width: 100%; justify-content: center; padding: 12px"
+              onclick="doRegister()"
+            >
+              Зареєструватися
+            </button>
+            <div class="auth-switch">
+              Вже є акаунт? <a onclick="toggleAuth(true)">Увійти</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-admin">
+      <div class="section">
+        <div class="section-title" style="margin-bottom: 18px">Статистика</div>
+        <div class="stats-grid" id="admin-stats"></div>
+        <div class="cat-tabs" style="margin-bottom: 24px">
+          <div class="cat-tab active" onclick="adminTab('dishes', this)">
+            Страви
+          </div>
+          <div class="cat-tab" onclick="adminTab('orders', this)">
+            Замовлення
+          </div>
+          <div class="cat-tab" onclick="adminTab('users', this)">
+            Користувачі
+          </div>
+        </div>
+        <div id="atab-dishes">
+          <div
+            style="
+              display: flex;
+              gap: 8px;
+              margin-bottom: 16px;
+              flex-wrap: wrap;
+            "
+          >
+            <input
+              id="adm-dish-search"
+              class="input search-input"
+              placeholder="Пошук страви..."
+              oninput="loadAdminDishes()"
+            />
+            <button class="btn btn-primary" onclick="openAddDish()">
+              + Додати страву
+            </button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Назва</th>
+                  <th>Категорія</th>
+                  <th>Ціна</th>
+                  <th>Доступна</th>
+                  <th>Дії</th>
+                </tr>
+              </thead>
+              <tbody id="admin-dishes-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div id="atab-orders" style="display: none">
+          <div class="filters-bar" style="margin-bottom: 16px">
+            <input
+              id="adm-ord-search"
+              class="input search-input"
+              placeholder="Пошук по клієнту, коментарю..."
+              oninput="loadAdminOrders()"
+            />
+            <select
+              id="adm-ord-status"
+              class="select"
+              onchange="loadAdminOrders()"
+            >
+              <option value="">Усі статуси</option>
+              <option value="1">Нове</option>
+              <option value="2">Готується</option>
+              <option value="3">Доставляється</option>
+              <option value="4">Виконано</option>
+              <option value="5">Скасовано</option>
+            </select>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Клієнт</th>
+                  <th>Сума</th>
+                  <th>Статус</th>
+                  <th>Дата</th>
+                  <th>Дії</th>
+                </tr>
+              </thead>
+              <tbody id="admin-orders-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div id="atab-users" style="display: none">
+          <div style="margin-bottom: 16px">
+            <input
+              id="adm-user-search"
+              class="input search-input"
+              placeholder="Пошук за ім'ям або поштою..."
+              oninput="loadAdminUsers()"
+            />
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Ім'я</th>
+                  <th>Email</th>
+                  <th>Роль</th>
+                  <th>Телефон</th>
+                  <th>Дата реєстрації</th>
+                </tr>
+              </thead>
+              <tbody id="admin-users-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const API = "http://localhost:5000/api";
+      let currentUser = JSON.parse(localStorage.getItem("cf_user") || "null");
+      let allDishes = [];
+      let categories = [];
+      let cart = JSON.parse(localStorage.getItem("cf_cart") || "[]");
+      let activeCatId = null;
+
+      const catEmoji = {
+        Піца: "🍕",
+        Бургери: "🍔",
+        Суші: "🍣",
+        Десерти: "🍰",
+        Напої: "🥤",
+      };
+      function dishEmoji(cat) {
+        return catEmoji[cat] || "🍽️";
+      }
+
+      function toast(msg, type = "ok") {
+        const el = document.getElementById("toast");
+        el.textContent = msg;
+        el.className = `show ${type}`;
+        clearTimeout(el._t);
+        el._t = setTimeout(() => (el.className = ""), 3200);
+      }
+
+      async function api(method, path, body) {
+        try {
+          const res = await fetch(API + path, {
+            method,
+            headers: { "Content-Type": "application/json" },
+            body: body ? JSON.stringify(body) : undefined,
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(data.message || `Помилка ${res.status}`);
+          return data;
+        } catch (e) {
+          toast(e.message, "err");
+          throw e;
+        }
+      }
+
+      function showPage(id) {
+        document
+          .querySelectorAll(".page")
+          .forEach((p) => p.classList.remove("active"));
+        document
+          .querySelectorAll(".nav-btn")
+          .forEach((b) => b.classList.remove("active"));
+        if (id === "orders" && !currentUser) {
+          showPage("auth");
+          return;
+        }
+        const page = document.getElementById("page-" + id);
+        if (page) page.classList.add("active");
+        const btn = [...document.querySelectorAll(".nav-btn")].find((b) =>
+          b.textContent
+            .toLowerCase()
+            .includes(
+              id === "home"
+                ? "голов"
+                : id === "menu"
+                  ? "меню"
+                  : id === "orders"
+                    ? "замов"
+                    : "адмін",
+            ),
+        );
+        if (btn) btn.classList.add("active");
+        if (id === "menu") loadMenu();
+        if (id === "orders") loadMyOrders();
+        if (id === "admin") loadAdminPage();
+        if (id === "home") loadHomeStats();
+      }
+
+      function renderUserArea() {
+        const el = document.getElementById("user-area");
+        const adminOnly = document.querySelectorAll(".admin-only");
+        if (currentUser) {
+          el.innerHTML = `<div class="user-chip">
+            <span>${currentUser.name}</span>
+            <span class="role-badge ${currentUser.role}">${currentUser.role === "admin" ? "А" : "U"}</span>
+            <button class="btn btn-ghost btn-sm" onclick="logout()">Вийти</button>
+          </div>`;
+          adminOnly.forEach(
+            (el) =>
+              (el.style.display = currentUser.role === "admin" ? "" : "none"),
+          );
+        } else {
+          el.innerHTML = `<button class="btn btn-ghost" onclick="showPage('auth')">Увійти</button>`;
+          adminOnly.forEach((el) => (el.style.display = "none"));
+        }
+      }
+
+      function toggleAuth(isLogin) {
+        document.getElementById("form-login").style.display = isLogin
+          ? ""
+          : "none";
+        document.getElementById("form-register").style.display = isLogin
+          ? "none"
+          : "";
+      }
+
+      async function doLogin() {
+        const email = document.getElementById("l-email").value.trim();
+        const pass = document.getElementById("l-pass").value;
+        if (!email || !pass) {
+          toast("Введіть пошту та пароль", "err");
+          return;
+        }
+        const data = await api("POST", "/auth/login", {
+          email,
+          password: pass,
+        });
+        if (!data) return;
+        currentUser = data;
+        localStorage.setItem("cf_user", JSON.stringify(data));
+        renderUserArea();
+        toast(`Ласкаво просимо, ${data.name}!`, "ok");
+        showPage("home");
+      }
+
+      async function doRegister() {
+        const body = {
+          name: document.getElementById("r-name").value.trim(),
+          email: document.getElementById("r-email").value.trim(),
+          password: document.getElementById("r-pass").value,
+          phone: document.getElementById("r-phone").value.trim() || null,
+          address: document.getElementById("r-addr").value.trim() || null,
+        };
+        if (!body.name || !body.email || !body.password) {
+          toast(`Заповніть обов'язкові поля`, "err");
+          return;
+        }
+        const data = await api("POST", "/auth/register", body);
+        if (!data) return;
+        currentUser = data;
+        localStorage.setItem("cf_user", JSON.stringify(data));
+        renderUserArea();
+        toast("Реєстрацію успішно завершено!", "ok");
+        showPage("home");
+      }
+
+      function logout() {
+        currentUser = null;
+        localStorage.removeItem("cf_user");
+        renderUserArea();
+        showPage("home");
+        toast("Ви вийшли з системи", "info");
+      }
+
+      async function loadHomeStats() {
+        try {
+          const [dishes, cats] = await Promise.all([
+            api("GET", "/dishes?available=true"),
+            api("GET", "/categories"),
+          ]);
+          document.getElementById("home-dishes").textContent = dishes.length;
+          document.getElementById("home-cats").textContent = cats.length;
+        } catch {}
+      }
+
+      async function loadMenu() {
+        try {
+          [allDishes, categories] = await Promise.all([
+            api("GET", "/dishes"),
+            api("GET", "/categories"),
+          ]);
+          renderCatTabs();
+          filterDishes();
+        } catch {}
+      }
+
+      function renderCatTabs() {
+        const el = document.getElementById("cat-tabs");
+        el.innerHTML =
+          `<div class="cat-tab active" onclick="setCat(null,this)">Усі</div>` +
+          categories
+            .map(
+              (c) =>
+                `<div class="cat-tab" onclick="setCat(${c.id},this)">${c.name}</div>`,
+            )
+            .join("");
+      }
+
+      function setCat(id, el) {
+        activeCatId = id;
+        document
+          .querySelectorAll(".cat-tab")
+          .forEach((t) => t.classList.remove("active"));
+        el.classList.add("active");
+        filterDishes();
+      }
+
+      function filterDishes() {
+        const q = (
+          document.getElementById("menu-search")?.value || ""
+        ).toLowerCase();
+        const min = parseFloat(document.getElementById("menu-min")?.value) || 0;
+        const max =
+          parseFloat(document.getElementById("menu-max")?.value) || Infinity;
+        const av = document.getElementById("menu-avail")?.checked ?? true;
+        const filtered = allDishes.filter(
+          (d) =>
+            (!activeCatId || d.categoryId === activeCatId) &&
+            (!av || d.isAvailable) &&
+            d.price >= min &&
+            d.price <= max &&
+            (!q ||
+              d.name.toLowerCase().includes(q) ||
+              (d.description || "").toLowerCase().includes(q)),
+        );
+        const grid = document.getElementById("dishes-grid");
+        if (!filtered.length) {
+          grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--text-muted);padding:56px 0;font-size:.875rem;">Нічого не знайдено</div>`;
+          return;
+        }
+        grid.innerHTML = filtered
+          .map(
+            (d) => `
+          <div class="dish-card">
+            <div class="dish-img">${dishEmoji(d.categoryName)}</div>
+            <div class="dish-body">
+              <div class="dish-name">${d.name}</div>
+              <div class="dish-desc">${d.description || ""}</div>
+              ${!d.isAvailable ? `<span class="unavail-badge">Тимчасово недоступна</span>` : ""}
+            </div>
+            <div class="dish-footer">
+              <div class="dish-price">${d.price} ₴</div>
+              ${
+                d.isAvailable
+                  ? `<button class="add-btn" onclick="addToCart(${d.id})">+ До кошика</button>`
+                  : `<span style="color:var(--text-muted);font-size:.76rem;">Недоступно</span>`
+              }
+            </div>
+          </div>`,
+          )
+          .join("");
+      }
+
+      function addToCart(dishId) {
+        const dish = allDishes.find((d) => d.id === dishId);
+        if (!dish) return;
+        const item = cart.find((i) => i.id === dishId);
+        if (item) item.qty++;
+        else
+          cart.push({
+            id: dish.id,
+            name: dish.name,
+            price: dish.price,
+            cat: dish.categoryName,
+            qty: 1,
+          });
+        saveCart();
+        toast(`«${dish.name}» додано до кошика`, "ok");
+      }
+
+      function saveCart() {
+        localStorage.setItem("cf_cart", JSON.stringify(cart));
+        renderCartBadge();
+        renderCartPanel();
+      }
+
+      function renderCartBadge() {
+        const total = cart.reduce((s, i) => s + i.qty, 0);
+        const badge = document.getElementById("cart-badge");
+        badge.textContent = total;
+        badge.style.display = total ? "" : "none";
+      }
+
+      function renderCartPanel() {
+        const body = document.getElementById("cart-body");
+        if (!cart.length) {
+          body.innerHTML = `<div class="cart-empty">Кошик порожній<br><small style="color:var(--text-muted)">Додайте страви з меню</small></div>`;
+          document.getElementById("cart-total").textContent = "0 ₴";
+          return;
+        }
+        body.innerHTML = cart
+          .map(
+            (item, idx) => `
+          <div class="cart-item">
+            <div class="cart-item-emoji">${dishEmoji(item.cat)}</div>
+            <div class="cart-item-info">
+              <div class="cart-item-name">${item.name}</div>
+              <div class="cart-item-price">${(item.price * item.qty).toFixed(0)} ₴</div>
+            </div>
+            <div class="qty-ctrl">
+              <button class="qty-btn" onclick="changeQty(${idx},-1)">−</button>
+              <span class="qty-num">${item.qty}</span>
+              <button class="qty-btn" onclick="changeQty(${idx},1)">+</button>
+            </div>
+          </div>`,
+          )
+          .join("");
+        const sum = cart.reduce((s, i) => s + i.price * i.qty, 0);
+        document.getElementById("cart-total").textContent =
+          sum.toFixed(0) + " ₴";
+      }
+
+      function changeQty(idx, delta) {
+        cart[idx].qty += delta;
+        if (cart[idx].qty <= 0) cart.splice(idx, 1);
+        saveCart();
+      }
+
+      function openCart() {
+        document.getElementById("cart-overlay").classList.add("open");
+        document.getElementById("cart-panel").classList.add("open");
+        renderCartPanel();
+      }
+      function closeCart() {
+        document.getElementById("cart-overlay").classList.remove("open");
+        document.getElementById("cart-panel").classList.remove("open");
+      }
+
+      function openCheckout() {
+        if (!cart.length) {
+          toast("Кошик порожній", "err");
+          return;
+        }
+        closeCart();
+        const userSection = document.getElementById("checkout-user-section");
+        if (currentUser) {
+          userSection.innerHTML = `<div style="background:var(--surface2);border-radius:8px;padding:12px;margin-bottom:16px;font-size:.855rem;">
+            Замовлення буде оформлено на ім'я <strong>${currentUser.name}</strong>
+          </div>`;
+        } else {
+          userSection.innerHTML = `
+            <div style="font-size:.72rem;color:var(--cyan);margin-bottom:12px;letter-spacing:.5px;text-transform:uppercase;font-weight:600;">Замовлення як гість</div>
+            <div class="form-group"><label class="form-label">Ім'я *</label><input id="co-name" class="form-input" placeholder="Ваше ім'я" /></div>
+            <div class="form-group"><label class="form-label">Телефон *</label><input id="co-phone" class="form-input" placeholder="+380XXXXXXXXX" /></div>
+            <div class="form-group"><label class="form-label">Адреса доставки</label><input id="co-addr" class="form-input" placeholder="вул. Хрещатик, 1, Київ" /></div>`;
+        }
+        const sum = cart.reduce((s, i) => s + i.price * i.qty, 0);
+        document.getElementById("checkout-items").innerHTML = cart
+          .map(
+            (i) =>
+              `<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:.83rem;">
+            <span style="color:var(--text-secondary)">${i.name} × ${i.qty}</span>
+            <span style="color:var(--accent)">${(i.price * i.qty).toFixed(0)} ₴</span>
+          </div>`,
+          )
+          .join("");
+        document.getElementById("checkout-total").textContent =
+          sum.toFixed(0) + " ₴";
+        document.getElementById("checkout-modal").classList.add("open");
+      }
+
+      async function submitOrder() {
+        const items = cart.map((i) => ({ dishId: i.id, quantity: i.qty }));
+        let body;
+        if (currentUser) {
+          body = {
+            userId: currentUser.id,
+            items,
+            comment: document.getElementById("co-comment").value.trim() || null,
+          };
+        } else {
+          const name = document.getElementById("co-name")?.value.trim();
+          const phone = document.getElementById("co-phone")?.value.trim();
+          if (!name || !phone) {
+            toast("Вкажіть ім'я та телефон", "err");
+            return;
+          }
+          body = {
+            userId: null,
+            guestName: name,
+            guestPhone: phone,
+            guestAddress:
+              document.getElementById("co-addr")?.value.trim() || null,
+            comment: document.getElementById("co-comment").value.trim() || null,
+            items,
+          };
+        }
+        const order = await api("POST", "/orders", body);
+        if (!order) return;
+        cart = [];
+        saveCart();
+        closeModal("checkout-modal");
+        toast(`Замовлення успішно оформлено`, "ok");
+        if (currentUser) showPage("orders");
+      }
+
+      async function loadMyOrders() {
+        const el = document.getElementById("orders-content");
+        if (!currentUser) {
+          el.innerHTML = `<p style="color:var(--text-muted)">Увійдіть, щоб переглянути замовлення</p>`;
+          return;
+        }
+        try {
+          const orders = await api("GET", `/orders?userId=${currentUser.id}`);
+          if (!orders.length) {
+            el.innerHTML = `<div class="cart-empty">У вас ще немає замовлень</div>`;
+            return;
+          }
+          el.innerHTML = `<div class="table-wrap"><table>
+            <thead><tr><th>#</th><th>Страви</th><th>Сума</th><th>Статус</th><th>Дата</th><th>Коментар</th></tr></thead>
+            <tbody>${orders
+              .map(
+                (o) => `
+              <tr>
+                <td style="font-weight:600">#${o.id}</td>
+                <td style="max-width:220px">${o.items.map((i) => `${i.dishName} ×${i.quantity}`).join(", ")}</td>
+                <td style="color:var(--accent);font-weight:600">${o.totalAmount} ₴</td>
+                <td><span class="status-pill s${o.statusId}">${o.statusName}</span></td>
+                <td style="color:var(--text-muted);font-size:.8rem">${fmtDate(o.createdAt)}</td>
+                <td style="color:var(--text-muted);font-size:.8rem">${o.comment || "—"}</td>
+              </tr>`,
+              )
+              .join("")}
+            </tbody></table></div>`;
+        } catch {}
+      }
+
+      async function loadAdminPage() {
+        loadAdminStats();
+        loadAdminDishes();
+      }
+
+      async function loadAdminStats() {
+        try {
+          const s = await api("GET", "/orders/statistics");
+          document.getElementById("admin-stats").innerHTML = `
+            <div class="stat-card"><div class="stat-card-val">${s.totalOrders}</div><div class="stat-card-lab">Всього замовлень</div></div>
+            <div class="stat-card"><div class="stat-card-val" style="color:var(--success)">${s.totalRevenue} ₴</div><div class="stat-card-lab">Загальна виручка</div></div>
+            <div class="stat-card"><div class="stat-card-val" style="color:var(--warning)">${s.pendingOrders}</div><div class="stat-card-lab">Активних замовлень</div></div>
+            <div class="stat-card"><div class="stat-card-val" style="color:var(--success)">${s.completedOrders}</div><div class="stat-card-lab">Виконано</div></div>
+            <div class="stat-card"><div class="stat-card-val" style="color:var(--danger)">${s.cancelledOrders}</div><div class="stat-card-lab">Скасовано</div></div>`;
+        } catch {}
+      }
+
+      async function loadAdminDishes() {
+        try {
+          const q = document.getElementById("adm-dish-search")?.value || "";
+          const dishes = await api(
+            "GET",
+            `/dishes?search=${encodeURIComponent(q)}`,
+          );
+          document.getElementById("admin-dishes-tbody").innerHTML = dishes
+            .map(
+              (d) => `
+            <tr>
+              <td style="font-weight:600">${d.id}</td>
+              <td>${d.name}</td>
+              <td style="color:var(--text-secondary)">${d.categoryName}</td>
+              <td style="color:var(--accent);font-weight:600">${d.price} ₴</td>
+              <td>${d.isAvailable ? '<span style="color:var(--success)">✓</span>' : '<span style="color:var(--danger)">✗</span>'}</td>
+              <td><div style="display:flex;gap:5px;flex-wrap:wrap;">
+                <button class="btn btn-ghost btn-sm" onclick="openEditDish(${d.id})">Ред.</button>
+                <button class="btn btn-ghost btn-sm" onclick="openLog(${d.id},'${d.name}')">Лог</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteDish(${d.id},'${d.name}')">Видалити</button>
+              </div></td>
+            </tr>`,
+            )
+            .join("");
+        } catch {}
+      }
+
+      async function loadAdminOrders() {
+        try {
+          const q = document.getElementById("adm-ord-search")?.value || "";
+          const st = document.getElementById("adm-ord-status")?.value || "";
+          const url = `/orders?search=${encodeURIComponent(q)}${st ? `&statusId=${st}` : ""}`;
+          const orders = await api("GET", url);
+          document.getElementById("admin-orders-tbody").innerHTML = orders
+            .map(
+              (o) => `
+            <tr>
+              <td style="font-weight:600">#${o.id}</td>
+              <td>
+                <strong>${o.userName || o.guestName || "Гість"}</strong>
+                <div style="font-size:.76em;color:var(--text-secondary);margin-top:3px;">
+                  <div>${o.userId ? o.userPhone || "Не вказано" : o.guestPhone || "—"}</div>
+                  <div>${o.userId ? o.userAddress || "Не вказано" : o.guestAddress || "—"}</div>
+                  <div style="margin-top:4px;color:var(--accent)">${o.items.map((i) => `${i.dishName} x${i.quantity}`).join(", ")}</div>
+                  ${o.comment ? `<div style="font-style:italic;margin-top:2px;">${o.comment}</div>` : ""}
+                </div>
+              </td>
+              <td style="color:var(--accent);font-weight:600">${o.totalAmount} ₴</td>
+              <td><span class="status-pill s${o.statusId}">${o.statusName}</span></td>
+              <td style="color:var(--text-muted);font-size:.78rem">${fmtDate(o.createdAt)}</td>
+              <td>
+                <select class="select" style="font-size:.74rem;padding:5px 8px" onchange="changeOrderStatus(${o.id},this.value,this)">
+                  ${[1, 2, 3, 4, 5].map((i) => `<option value="${i}" ${o.statusId == i ? "selected" : ""}>${["", "Нове", "Готується", "Доставляється", "Виконано", "Скасовано"][i]}</option>`).join("")}
+                </select>
+              </td>
+            </tr>`,
+            )
+            .join("");
+        } catch {}
+      }
+
+      async function loadAdminUsers() {
+        try {
+          const q = document.getElementById("adm-user-search")?.value || "";
+          const users = await api(
+            "GET",
+            `/users?search=${encodeURIComponent(q)}`,
+          );
+          document.getElementById("admin-users-tbody").innerHTML = users
+            .map(
+              (u) => `
+            <tr>
+              <td>${u.id}</td>
+              <td style="font-weight:500">${u.name}</td>
+              <td style="color:var(--text-secondary)">${u.email}</td>
+              <td><span class="role-badge ${u.role}">${u.role === "admin" ? "Адмін" : "Юзер"}</span></td>
+              <td style="color:var(--text-secondary)">${u.phone || "—"}</td>
+              <td style="color:var(--text-muted);font-size:.8rem">${fmtDate(u.createdAt)}</td>
+            </tr>`,
+            )
+            .join("");
+        } catch {}
+      }
+
+      async function changeOrderStatus(orderId, statusId, select) {
+        const orig = select.dataset.orig || select.value;
+        try {
+          await api("PATCH", `/orders/${orderId}/status`, {
+            statusId: parseInt(statusId),
+          });
+          toast(`Статус замовлення #${orderId} оновлено`, "ok");
+          loadAdminOrders();
+          loadAdminStats();
+        } catch {
+          select.value = orig;
+        }
+      }
+
+      function adminTab(name, el) {
+        ["dishes", "orders", "users"].forEach((t) => {
+          document.getElementById("atab-" + t).style.display =
+            t === name ? "" : "none";
+        });
+        document
+          .querySelectorAll("#page-admin .cat-tab")
+          .forEach((t) => t.classList.remove("active"));
+        el.classList.add("active");
+        if (name === "orders") loadAdminOrders();
+        if (name === "users") loadAdminUsers();
+      }
+
+      function openAddDish() {
+        document.getElementById("dish-modal-title").textContent = "Нова страва";
+        document.getElementById("dm-id").value = "";
+        document.getElementById("dm-name").value = "";
+        document.getElementById("dm-desc").value = "";
+        document.getElementById("dm-price").value = "";
+        document.getElementById("dm-avail").checked = true;
+        populateCatSelect(null);
+        document.getElementById("dish-modal").classList.add("open");
+      }
+
+      async function openEditDish(id) {
+        const dish = await api("GET", `/dishes/${id}`);
+        if (!dish) return;
+        document.getElementById("dish-modal-title").textContent =
+          "Редагувати страву";
+        document.getElementById("dm-id").value = dish.id;
+        document.getElementById("dm-name").value = dish.name;
+        document.getElementById("dm-desc").value = dish.description || "";
+        document.getElementById("dm-price").value = dish.price;
+        document.getElementById("dm-avail").checked = dish.isAvailable;
+        populateCatSelect(dish.categoryId);
+        document.getElementById("dish-modal").classList.add("open");
+      }
+
+      function populateCatSelect(selectedId) {
+        const sel = document.getElementById("dm-cat");
+        sel.innerHTML = categories
+          .map(
+            (c) =>
+              `<option value="${c.id}" ${c.id == selectedId ? "selected" : ""}>${c.name}</option>`,
+          )
+          .join("");
+        if (!categories.length) {
+          api("GET", "/categories").then((cats) => {
+            categories = cats;
+            sel.innerHTML = cats
+              .map(
+                (c) =>
+                  `<option value="${c.id}" ${c.id == selectedId ? "selected" : ""}>${c.name}</option>`,
+              )
+              .join("");
+          });
+        }
+      }
+
+      async function saveDish() {
+        const id = document.getElementById("dm-id").value;
+        const body = {
+          name: document.getElementById("dm-name").value.trim(),
+          description: document.getElementById("dm-desc").value.trim() || null,
+          price: parseFloat(document.getElementById("dm-price").value),
+          isAvailable: document.getElementById("dm-avail").checked,
+          categoryId: parseInt(document.getElementById("dm-cat").value),
+        };
+        if (!body.name || isNaN(body.price)) {
+          toast("Заповніть обов'язкові поля", "err");
+          return;
+        }
+        if (id) {
+          await api("PUT", `/dishes/${id}`, body);
+          toast("Страву оновлено", "ok");
+        } else {
+          await api("POST", "/dishes", body);
+          toast("Страву додано", "ok");
+        }
+        closeModal("dish-modal");
+        loadAdminDishes();
+      }
+
+      async function deleteDish(id, name) {
+        if (!confirm(`Видалити страву «${name}»?`)) return;
+        await api("DELETE", `/dishes/${id}`);
+        toast("Страву видалено", "ok");
+        loadAdminDishes();
+      }
+
+      async function openLog(id, name) {
+        const logs = await api("GET", `/dishes/${id}/changelog`);
+        if (!logs) return;
+        document.getElementById("log-content").innerHTML = logs.length
+          ? `<div class="table-wrap"><table>
+              <thead><tr><th>Дата</th><th>Зміни</th><th>Автор</th></tr></thead>
+              <tbody>${logs
+                .map(
+                  (l) => `
+                <tr>
+                  <td style="font-size:.78rem;color:var(--text-muted);white-space:nowrap">${fmtDate(l.changedAt)}</td>
+                  <td>${l.changeDescription}</td>
+                  <td style="color:var(--text-muted)">${l.changedBy}</td>
+                </tr>`,
+                )
+                .join("")}
+              </tbody></table></div>`
+          : `<p style="color:var(--text-muted);text-align:center;padding:24px">Змін не зафіксовано</p>`;
+        document.getElementById("log-modal").querySelector("h3").textContent =
+          `Журнал: ${name}`;
+        document.getElementById("log-modal").classList.add("open");
+      }
+
+      function closeModal(id) {
+        document.getElementById(id).classList.remove("open");
+      }
+      document.querySelectorAll(".modal-overlay").forEach((m) =>
+        m.addEventListener("click", (e) => {
+          if (e.target === m) m.classList.remove("open");
+        }),
+      );
+
+      function fmtDate(s) {
+        const d = new Date(s);
+        return d.toLocaleString("uk-UA", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      }
+
+      renderUserArea();
+      renderCartBadge();
+      loadHomeStats();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>CyberFork</name>
+    </assembly>
+    <members>
+        <member name="T:CyberFork.Migrations.InitialSnakeCase">
+            <inheritdoc />
+        </member>
+        <member name="M:CyberFork.Migrations.InitialSnakeCase.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:CyberFork.Migrations.InitialSnakeCase.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:CyberFork.Migrations.InitialSnakeCase.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:CyberFork.Migrations.SyncNamingAndModels">
+            <inheritdoc />
+        </member>
+        <member name="M:CyberFork.Migrations.SyncNamingAndModels.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:CyberFork.Migrations.SyncNamingAndModels.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:CyberFork.Migrations.SyncNamingAndModels.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:CyberFork.Migrations.ChangeTimeToTimestamptz">
+            <inheritdoc />
+        </member>
+        <member name="M:CyberFork.Migrations.ChangeTimeToTimestamptz.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:CyberFork.Migrations.ChangeTimeToTimestamptz.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:CyberFork.Migrations.ChangeTimeToTimestamptz.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+    </members>
+</doc>
