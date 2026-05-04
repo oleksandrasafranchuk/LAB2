@@ -40,5 +40,17 @@
         <member name="M:CyberFork.Migrations.ChangeTimeToTimestamptz.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
         </member>
+        <member name="T:CyberFork.Migrations.MakeNameUniqueAndSync">
+            <inheritdoc />
+        </member>
+        <member name="M:CyberFork.Migrations.MakeNameUniqueAndSync.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:CyberFork.Migrations.MakeNameUniqueAndSync.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:CyberFork.Migrations.MakeNameUniqueAndSync.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
     </members>
 </doc>

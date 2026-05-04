@@ -1646,13 +1646,87 @@
 
       async function loadMenu() {
         try {
-          [allDishes, categories] = await Promise.all([
+          const [dishes, cats] = await Promise.all([
             api("GET", "/dishes"),
             api("GET", "/categories"),
           ]);
+          allDishes = dishes;
+          categories = cats;
+
           renderCatTabs();
           filterDishes();
-        } catch {}
+        } catch (e) {
+          console.error("Помилка завантаження меню:", e);
+        }
+      }
+
+      function renderDishes(dishesToRender = allDishes) {
+        const grid = document.getElementById("dishes-grid");
+
+        if (!dishesToRender.length) {
+          grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--muted);padding:56px 0;">Нічого не знайдено</div>`;
+          return;
+        }
+
+        grid.innerHTML = dishesToRender
+          .map((d) => {
+            const cartItem = cart.find((item) => item.id === d.id);
+            const quantity = cartItem ? cartItem.qty : 0;
+
+            return `
+      <div class="dish-card">
+          <div class="dish-img">
+            ${dishEmoji(d.categoryName)}
+          </div>
+          <div class="dish-body">
+              <div class="dish-name">${d.name}</div>
+              <div class="dish-desc">${d.description || ""}</div>
+              ${!d.isAvailable ? `<span class="unavail-badge">Тимчасово недоступна</span>` : ""}
+          </div>
+          <div class="dish-footer">
+              <div class="dish-price">${d.price} ₴</div>
+              <div class="action-area" id="action-${d.id}">
+                ${
+                  !d.isAvailable
+                    ? `<span style="color:var(--muted);font-size:.75rem;">Недоступно</span>`
+                    : quantity > 0
+                      ? `<div class="qty-control-inline">
+                         <button class="btn-qty" onclick="updateQtyInMenu(${d.id}, -1)">−</button>
+                         <span class="qty-val">${quantity}</span>
+                         <button class="btn-qty" onclick="updateQtyInMenu(${d.id}, 1)">+</button>
+                       </div>`
+                      : `<button class="add-btn" onclick="addToCart(${d.id})">
+                         + До кошика
+                       </button>`
+                }
+              </div>
+          </div>
+      </div>
+    `;
+          })
+          .join("");
+      }
+      function filterDishes() {
+        const q = (
+          document.getElementById("menu-search")?.value || ""
+        ).toLowerCase();
+        const min = parseFloat(document.getElementById("menu-min")?.value) || 0;
+        const max =
+          parseFloat(document.getElementById("menu-max")?.value) || Infinity;
+        const av = document.getElementById("menu-avail")?.checked ?? true;
+
+        const filtered = allDishes.filter(
+          (d) =>
+            (!activeCatId || d.categoryId === activeCatId) &&
+            (!av || d.isAvailable) &&
+            d.price >= min &&
+            d.price <= max &&
+            (!q ||
+              d.name.toLowerCase().includes(q) ||
+              (d.description || "").toLowerCase().includes(q)),
+        );
+
+        renderDishes(filtered);
       }
 
       function renderCatTabs() {
@@ -1676,58 +1750,28 @@
         filterDishes();
       }
 
-      function filterDishes() {
-        const q = (
-          document.getElementById("menu-search")?.value || ""
-        ).toLowerCase();
-        const min = parseFloat(document.getElementById("menu-min")?.value) || 0;
-        const max =
-          parseFloat(document.getElementById("menu-max")?.value) || Infinity;
-        const av = document.getElementById("menu-avail")?.checked ?? true;
-        const filtered = allDishes.filter(
-          (d) =>
-            (!activeCatId || d.categoryId === activeCatId) &&
-            (!av || d.isAvailable) &&
-            d.price >= min &&
-            d.price <= max &&
-            (!q ||
-              d.name.toLowerCase().includes(q) ||
-              (d.description || "").toLowerCase().includes(q)),
-        );
-        const grid = document.getElementById("dishes-grid");
-        if (!filtered.length) {
-          grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--text-muted);padding:56px 0;font-size:.875rem;">Нічого не знайдено</div>`;
-          return;
+      function updateQtyInMenu(id, delta) {
+        const itemIndex = cart.findIndex((i) => i.id === id);
+        if (itemIndex !== -1) {
+          cart[itemIndex].qty += delta;
+
+          if (cart[itemIndex].qty <= 0) {
+            cart.splice(itemIndex, 1);
+          }
         }
-        grid.innerHTML = filtered
-          .map(
-            (d) => `
-          <div class="dish-card">
-            <div class="dish-img">${dishEmoji(d.categoryName)}</div>
-            <div class="dish-body">
-              <div class="dish-name">${d.name}</div>
-              <div class="dish-desc">${d.description || ""}</div>
-              ${!d.isAvailable ? `<span class="unavail-badge">Тимчасово недоступна</span>` : ""}
-            </div>
-            <div class="dish-footer">
-              <div class="dish-price">${d.price} ₴</div>
-              ${
-                d.isAvailable
-                  ? `<button class="add-btn" onclick="addToCart(${d.id})">+ До кошика</button>`
-                  : `<span style="color:var(--text-muted);font-size:.76rem;">Недоступно</span>`
-              }
-            </div>
-          </div>`,
-          )
-          .join("");
+        localStorage.setItem("cf_cart", JSON.stringify(cart));
+        updateCartUI();
+        renderDishes();
       }
 
       function addToCart(dishId) {
         const dish = allDishes.find((d) => d.id === dishId);
         if (!dish) return;
+
         const item = cart.find((i) => i.id === dishId);
-        if (item) item.qty++;
-        else
+        if (item) {
+          item.qty++;
+        } else {
           cart.push({
             id: dish.id,
             name: dish.name,
@@ -1735,8 +1779,26 @@
             cat: dish.categoryName,
             qty: 1,
           });
+        }
+
         saveCart();
+        renderDishes();
         toast(`«${dish.name}» додано до кошика`, "ok");
+      }
+
+      function updateQtyInMenu(dishId, delta) {
+        const item = cart.find((i) => i.id === dishId);
+        if (!item) return;
+
+        item.qty += delta;
+
+        if (item.qty <= 0) {
+          const index = cart.findIndex((i) => i.id === dishId);
+          cart.splice(index, 1);
+        }
+
+        saveCart();
+        renderDishes();
       }
 
       function saveCart() {
@@ -2072,26 +2134,36 @@
 
       async function saveDish() {
         const id = document.getElementById("dm-id").value;
+        const name = document.getElementById("dm-name").value.trim();
+
+        const isDuplicate = allDishes.some(
+          (d) => d.name.toLowerCase() === name.toLowerCase() && d.id != id,
+        );
+
+        if (isDuplicate) {
+          toast(`Помилка: Назва «${name}» вже зайнята!`, "err");
+          return;
+        }
+
         const body = {
-          name: document.getElementById("dm-name").value.trim(),
+          name: name,
           description: document.getElementById("dm-desc").value.trim() || null,
           price: parseFloat(document.getElementById("dm-price").value),
           isAvailable: document.getElementById("dm-avail").checked,
           categoryId: parseInt(document.getElementById("dm-cat").value),
         };
-        if (!body.name || isNaN(body.price)) {
-          toast("Заповніть обов'язкові поля", "err");
-          return;
-        }
-        if (id) {
-          await api("PUT", `/dishes/${id}`, body);
-          toast("Страву оновлено", "ok");
-        } else {
-          await api("POST", "/dishes", body);
-          toast("Страву додано", "ok");
-        }
-        closeModal("dish-modal");
-        loadAdminDishes();
+
+        try {
+          if (id) {
+            await api("PUT", `/dishes/${id}`, body);
+            toast("Зміни збережено та записано в лог", "ok");
+          } else {
+            await api("POST", "/dishes", body);
+            toast("Нову страву додано", "ok");
+          }
+          closeModal("dish-modal");
+          loadAdminDishes();
+        } catch (e) {}
       }
 
       async function deleteDish(id, name) {

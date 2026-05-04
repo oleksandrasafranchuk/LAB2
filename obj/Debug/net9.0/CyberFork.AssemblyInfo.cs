@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CyberFork")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5c61b7fea4f6718e072dd07903d280cda041774a")]
 [assembly: System.Reflection.AssemblyProductAttribute("CyberFork")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CyberFork")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

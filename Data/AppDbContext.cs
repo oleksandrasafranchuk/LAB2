@@ -35,7 +35,8 @@ namespace CyberFork.Data
             mb.Entity<DishChangeLog>()
                 .HasIndex(cl => cl.DishId);
 
-           
+           mb.Entity<Dish>()
+              .HasIndex(d => d.Name).IsUnique();
 
             mb.Entity<Order>()
                 .HasOne(o => o.User)

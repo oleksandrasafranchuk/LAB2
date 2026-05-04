@@ -124,4 +124,5 @@
 /Users/oleksandrasafrancuk/CyberFork/obj/Debug/net9.0/CyberFork.pdb
 /Users/oleksandrasafrancuk/CyberFork/obj/Debug/net9.0/CyberFork.genruntimeconfig.cache
 /Users/oleksandrasafrancuk/CyberFork/obj/Debug/net9.0/ref/CyberFork.dll
-/Users/oleksandrasafrancuk/CyberFork/obj/Debug/net9.0/compressed/24pea1aq7m-di7dr3vanh.gz
+/Users/oleksandrasafrancuk/CyberFork/obj/Debug/net9.0/CyberFork.sourcelink.json
+/Users/oleksandrasafrancuk/CyberFork/obj/Debug/net9.0/compressed/24pea1aq7m-1fd2f7577p.gz
