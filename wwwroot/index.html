@@ -1805,6 +1805,7 @@
         localStorage.setItem("cf_cart", JSON.stringify(cart));
         renderCartBadge();
         renderCartPanel();
+        filterDishes();
       }
 
       function renderCartBadge() {
@@ -1845,8 +1846,15 @@
 
       function changeQty(idx, delta) {
         cart[idx].qty += delta;
-        if (cart[idx].qty <= 0) cart.splice(idx, 1);
+
+        if (cart[idx].qty <= 0) {
+          cart.splice(idx, 1);
+        }
+
         saveCart();
+        if (typeof renderDishes === "function") {
+          filterDishes();
+        }
       }
 
       function openCart() {
